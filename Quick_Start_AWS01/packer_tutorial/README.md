@@ -3,7 +3,7 @@
 
 ## Install Packer
 - Packer Download  
-    <img src="./Image/InstallPacker.png"  width="80%" height="80%">
+    <img src="./Image/InstallPacker.png"  width="80%" height="80%"><br>
     Ref : https://developer.hashicorp.com/packer/downloads
 
 - MAC Example
@@ -19,3 +19,4 @@
     1.9.4
     ```
     Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started/get-started-install-cli
+
