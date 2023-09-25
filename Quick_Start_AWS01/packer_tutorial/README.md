@@ -1,7 +1,7 @@
 # Quick_Start_AWS01
 Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started
 
-## 1. Install Packer
+## A. Install Packer
 - Packer Download  
     <img src="./Image/InstallPacker.png"  width="65%" height="65%"><br>
     Ref : https://developer.hashicorp.com/packer/downloads
@@ -20,7 +20,8 @@ Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started
     ```
     Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started/get-started-install-cli
 
-## 2. Build an Image
+
+## B. Build an Image
 - File Structure
   ```bash
   mkdir packer_tutorial
@@ -66,3 +67,20 @@ Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started
         ]
     } 
     ```
+
+
+### Create Image
+***1. Initialize Packer configuration***
+```bash
+packer init .
+```
+
+***2. Format and validate your Packer template***
+```bash
+packer validate .
+```
+
+***3. Build Packer image***
+```bash
+packer build aws-ubuntu.pkr.hcl
+```
