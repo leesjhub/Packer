@@ -4,7 +4,7 @@
 ## Install Packer
 - Packer Download  
     <img src="./Image/InstallPacker.png"  width="80%" height="80%">
-    [Install | Packer | HashiCorp Developer](https://developer.hashicorp.com/packer/downloads)
+    Ref : https://developer.hashicorp.com/packer/downloads
 
 - MAC Example
     ```bash
@@ -18,4 +18,4 @@
     packer --version
     1.9.4
     ```
-    [Install Packer | Packer | HashiCorp Developer](https://developer.hashicorp.com/packer/tutorials/aws-get-started/get-started-install-cli)
+    Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started/get-started-install-cli
