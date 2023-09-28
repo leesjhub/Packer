@@ -7,8 +7,18 @@ packer {
   }
 }
 
+variable "ami_prefix" {
+  type    = string
+  default = "learn-packer-linux-aws-redis"
+}
+
+locals {
+  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+}
+
+
 source "amazon-ebs" "ubuntu" {
-  ami_name      = "learn-packer-linux-aws-redis"
+  ami_name      = "${var.ami_prefix}-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "ap-northeast-2"
   source_ami_filter {
@@ -23,10 +33,27 @@ source "amazon-ebs" "ubuntu" {
   ssh_username = "ubuntu"
 }
 
+source "amazon-ebs" "ubuntu-focal" {
+    ami_name      = "${var.ami_prefix}-focal-${local.timestamp}"
+    instance_type = "t2.micro"
+    region        = "ap-northeast-2"
+    source_ami_filter {
+        filters = {
+        name                = "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*"
+        root-device-type    = "ebs"
+        virtualization-type = "hvm"
+        }
+        most_recent = true
+        owners      = ["099720109477"]
+    }
+    ssh_username = "ubuntu"
+}
+
 build {
   name = "learn-packer"
   sources = [
-    "source.amazon-ebs.ubuntu"
+    "source.amazon-ebs.ubuntu",
+    "source.amazon-ebs.ubuntu-focal"
   ]
 
   provisioner "shell" {

@@ -205,20 +205,96 @@ ap-northeast-2: ami-03b61305e670a0160
     learn-packer.amazon-ebs.ubuntu: output will be in this color.
 
     ==> learn-packer.amazon-ebs.ubuntu: Prevalidating any provided VPC information
-    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating AMI Name: learn-packer-linux-aws-redis
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating AMI Name: learn-packer-linux-aws-redis-20230928050702
         learn-packer.amazon-ebs.ubuntu: Found Image ID: ami-0dd97ebb907cf9366
+    ==> learn-packer.amazon-ebs.ubuntu: Creating temporary keypair: packer_651509f6-29db-0a3f-4e54-2cc0c4968d33
     ...
         learn-packer.amazon-ebs.ubuntu: Installing Redis
     ...
         learn-packer.amazon-ebs.ubuntu: This provisioner runs last
     ...
-    ==> learn-packer.amazon-ebs.ubuntu: Creating AMI learn-packer-linux-aws-redis from instance i-0d2ad9b3ecab3f291
-        learn-packer.amazon-ebs.ubuntu: AMI: ami-0074684d78efa64bb
+    ==> learn-packer.amazon-ebs.ubuntu: Creating AMI learn-packer-linux-aws-redis-20230928050702 from instance i-0f91a24da7c1c6660
+        learn-packer.amazon-ebs.ubuntu: AMI: ami-01a538967f4744219
     ...
+    Build 'learn-packer.amazon-ebs.ubuntu' finished after 3 minutes 55 seconds.
 
-    ==> Wait completed after 4 minutes 5 seconds
+    ==> Wait completed after 3 minutes 55 seconds
 
     ==> Builds finished. The artifacts of successful builds are:
     --> learn-packer.amazon-ebs.ubuntu: AMIs were created:
-    ap-northeast-2: ami-0074684d78efa64bb
+    ap-northeast-2: ami-01a538967f4744219
+
     ```
+    <img src="./Image/D_Variables.png"  width="65%" height="65%"><br>    
+
+## E. Parallel builds
+- aws-ubuntu.pkr.hcl
+  - source block 추가
+  
+    ```hcl
+    source "amazon-ebs" "ubuntu-focal" {
+        ami_name      = "${var.ami_prefix}-focal-${local.timestamp}"
+        instance_type = "t2.micro"
+        region        = "ap-northeast-2"
+        source_ami_filter {
+            filters = {
+            name                = "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*"
+            root-device-type    = "ebs"
+            virtualization-type = "hvm"
+            }
+            most_recent = true
+            owners      = ["099720109477"]
+        }
+        ssh_username = "ubuntu"
+    }
+    build {
+        name = "learn-packer"
+        sources = [
+            "source.amazon-ebs.ubuntu",
+            "source.amazon-ebs.ubuntu-focal"
+        ]
+        ...
+    }
+    ```
+- Build Packer Image
+    ```
+    packer build aws-ubuntu.pkr.hcl
+    learn-packer.amazon-ebs.ubuntu: output will be in this color.
+    learn-packer.amazon-ebs.ubuntu-focal: output will be in this color.
+
+    ==> learn-packer.amazon-ebs.ubuntu-focal: Prevalidating any provided VPC information
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating any provided VPC information
+    ==> learn-packer.amazon-ebs.ubuntu-focal: Prevalidating AMI Name: learn-packer-linux-aws-redis-focal-20230928060512
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating AMI Name: learn-packer-linux-aws-redis-20230928060512
+    ...
+        learn-packer.amazon-ebs.ubuntu-focal: Installing Redis
+    ...
+        learn-packer.amazon-ebs.ubuntu: Installing Redis
+    ...
+        learn-packer.amazon-ebs.ubuntu-focal: This provisioner runs last
+    ...
+        learn-packer.amazon-ebs.ubuntu: This provisioner runs last
+    ...
+    ==> learn-packer.amazon-ebs.ubuntu-focal: Creating AMI learn-packer-linux-aws-redis-focal-20230928060512 from instance i-01ade72c58f786ae9
+        learn-packer.amazon-ebs.ubuntu-focal: AMI: ami-01af8f81eb74fc124
+    ...
+    ==> learn-packer.amazon-ebs.ubuntu: Creating AMI learn-packer-linux-aws-redis-20230928060512 from instance i-0655df2e20ad8a1c2
+        learn-packer.amazon-ebs.ubuntu: AMI: ami-0b0b95404a46eca83
+    ...
+    Build 'learn-packer.amazon-ebs.ubuntu-focal' finished after 3 minutes 51 seconds.
+    ...
+    Build 'learn-packer.amazon-ebs.ubuntu' finished after 3 minutes 53 seconds.
+
+    ==> Wait completed after 3 minutes 53 seconds
+
+    ==> Builds finished. The artifacts of successful builds are:
+    --> learn-packer.amazon-ebs.ubuntu: AMIs were created:
+    ap-northeast-2: ami-0b0b95404a46eca83
+
+    --> learn-packer.amazon-ebs.ubuntu-focal: AMIs were created:
+    ap-northeast-2: ami-01af8f81eb74fc124
+
+    ```
+    <img src="Image/E_Parallel.png" width="65%" height="65%"><br/>
+
+
