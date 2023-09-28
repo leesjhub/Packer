@@ -3,7 +3,7 @@ Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started
 
 ## A. Install Packer
 - Packer Download  
-    <img src="./Image/InstallPacker.png"  width="65%" height="65%"><br>
+    <img src="./Image/A_InstallPacker.png"  width="65%" height="65%"><br>
     Ref : https://developer.hashicorp.com/packer/downloads
 
 - MAC Example
@@ -19,6 +19,7 @@ Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started
     1.9.4
     ```
     Ref : https://developer.hashicorp.com/packer/tutorials/aws-get-started/get-started-install-cli
+
 
 
 ## B. Build an Image
@@ -105,4 +106,119 @@ Build 'learn-packer.amazon-ebs.ubuntu' finished after 3 minutes 15 seconds.
 --> learn-packer.amazon-ebs.ubuntu: AMIs were created:
 ap-northeast-2: ami-03b61305e670a0160
 ```
-<img src="./Image/BuildPackerImage_B.png"  width="65%" height="65%"><br>
+<img src="./Image/B_BuildPackerImage.png"  width="65%" height="65%"><br>
+
+
+## C. Provision
+- AMI 이름은 고유해야 하므로 `source block` 에 ami_name 속성 변경
+    - `ami_name = "learn-packer-linux-aws”` → `ami_name = "learn-packer-linux-aws-redis”`
+        ```hcl
+        #### 변경 전
+        source "amazon-ebs" "ubuntu" {
+            ami_name      = "learn-packer-linux-aws"
+            ...
+        }
+
+        #### 변경 후
+        source "amazon-ebs" "ubuntu" {
+            ami_name      = "learn-packer-linux-aws-redis"
+            ...
+        }
+        ```
+
+- aws-ubuntu.pkr.hcl 파일에 provisioner block 추가
+  
+  ```hcl
+  build {
+    name    = "learn-packer"
+    sources = [
+        "source.amazon-ebs.ubuntu"
+    ]
+
+    provisioner "shell" {
+        environment_vars = [
+            "FOO=hello world",
+        ]
+        inline = [
+            "echo Installing Redis",
+            "sleep 30",
+            "sudo apt-get update",
+            "sudo apt-get install -y ec2-instance-connect",
+            "sudo apt-get install -y redis-server",
+            "echo \"FOO is $FOO\" > example.txt",
+        ]
+    }
+        provisioner "shell" {
+            inline = ["echo This provisioner runs last"]
+        }
+    }
+    ```
+
+- Build Packer image
+  
+    ```
+    learn-packer.amazon-ebs.ubuntu: output will be in this color.
+
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating any provided VPC information
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating AMI Name: learn-packer-linux-aws-redis
+        learn-packer.amazon-ebs.ubuntu: Found Image ID: ami-0dd97ebb907cf9366
+    ...
+        learn-packer.amazon-ebs.ubuntu: Installing Redis
+    ...
+        learn-packer.amazon-ebs.ubuntu: This provisioner runs last
+    ...
+    ==> learn-packer.amazon-ebs.ubuntu: Creating AMI learn-packer-linux-aws-redis from instance i-0d2ad9b3ecab3f291
+        learn-packer.amazon-ebs.ubuntu: AMI: ami-0074684d78efa64bb
+    ...
+
+    ==> Wait completed after 4 minutes 5 seconds
+
+    ==> Builds finished. The artifacts of successful builds are:
+    --> learn-packer.amazon-ebs.ubuntu: AMIs were created:
+    ap-northeast-2: ami-0074684d78efa64bb
+    ```
+    <img src="./Image/C_ProvisionImage.png"  width="65%" height="65%"><br>
+
+
+## D. Variables
+- aws-ubuntu.pkr.hcl
+  - `variable block`, `locals block` 추가
+  - `ami_name` 변경
+        ```hcl
+        variable "ami_prefix" {
+            type    = string
+            default = "learn-packer-linux-aws-redis"
+        }
+
+        locals {
+            timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+        }
+
+
+        source "amazon-ebs" "ubuntu" {
+            ami_name      = "${var.ami_prefix}-${local.timestamp}"
+            ...
+        }
+        ```
+  - Build Packer Image
+    ```
+    learn-packer.amazon-ebs.ubuntu: output will be in this color.
+
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating any provided VPC information
+    ==> learn-packer.amazon-ebs.ubuntu: Prevalidating AMI Name: learn-packer-linux-aws-redis
+        learn-packer.amazon-ebs.ubuntu: Found Image ID: ami-0dd97ebb907cf9366
+    ...
+        learn-packer.amazon-ebs.ubuntu: Installing Redis
+    ...
+        learn-packer.amazon-ebs.ubuntu: This provisioner runs last
+    ...
+    ==> learn-packer.amazon-ebs.ubuntu: Creating AMI learn-packer-linux-aws-redis from instance i-0d2ad9b3ecab3f291
+        learn-packer.amazon-ebs.ubuntu: AMI: ami-0074684d78efa64bb
+    ...
+
+    ==> Wait completed after 4 minutes 5 seconds
+
+    ==> Builds finished. The artifacts of successful builds are:
+    --> learn-packer.amazon-ebs.ubuntu: AMIs were created:
+    ap-northeast-2: ami-0074684d78efa64bb
+    ```
