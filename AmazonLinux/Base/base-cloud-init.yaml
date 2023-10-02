@@ -1,0 +1,51 @@
+#cloud-config
+system_info:
+  default_user:
+    name: sysadmin
+    gecos: sysadmin
+    uid: "1010"
+
+ssh_pwauth: true
+
+chpasswd:
+  expire: true
+
+chpasswd:
+  list:
+    - sysadmin:sysadmin
+
+package_update: true
+package_upgrade: true
+packages:
+ - awscli
+ - nvme-cli
+ - amazon-ssm-agent.rpm
+
+ntp:
+  enabled: true
+  ntp_client: chrony
+  servers:
+    - 169.254.169.123
+
+timezone: ROK
+#timezone: Asia/Seoul
+
+runcmd:
+  - [ sed, -i, 's/#Port 22/Port 10022/g', /etc/ssh/sshd_config ]
+  - [ systemctl, restart, sshd ]
+  - [ sed, -i, 's/name: ec2-user/name: sysadmin/g', /etc/cloud/cloud.cfg ]
+  - [ sed, -i, 's/lock_passwd: true/lock_passwd: false/g', /etc/cloud/cloud.cfg ]
+  - [ sed, -i, 's/gecos: EC2 Default User/gecos: sysadmin/g', /etc/cloud/cloud.cfg ]
+  - [ sed, -i, 's/ssh_pwauth:   false/ssh_pwauth:   true/g', /etc/cloud/cloud.cfg ]
+
+hostname: TEST
+manage_etc_hosts: true
+
+output:
+    init:
+        output: "> /var/log/cloud-init.out"
+        error: "> /var/log/cloud-init.err"
+    config: "tee -a /var/log/cloud-config.log"
+    final:
+        - ">> /var/log/cloud-final.out"
+        - "/var/log/cloud-final.err"
