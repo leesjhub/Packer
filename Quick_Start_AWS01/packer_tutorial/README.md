@@ -79,10 +79,9 @@ Installed plugin github.com/hashicorp/amazon v1.2.7 in "/Users/{User}/.config/pa
 
 ***2. Format and validate your Packer template***
 ```bash
-$ packer validate .
-aws-ubuntu.pkr.hcl 
+$ pakcer fmt .
 
-$ packer build aws-ubuntu.pkr.hcl
+$ packer validate aws-ubuntu.pkr.hcl
 The configuration is valid.
 ```
 
