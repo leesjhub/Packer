@@ -9,12 +9,12 @@ Installed plugin github.com/hashicorp/amazon v1.2.7 in "/Users/{User}/.config/pa
 ```bash
 $ pakcer fmt .
 
-$ packer validate aws-ubuntu.pkr.hcl
+$ packer validate .
 The configuration is valid.
 ```
 
 ***3. Build Packer image***
 ```bash
-$ packer build aws-ubuntu.pkr.hcl
+$ packer build .
 
 
