@@ -1,0 +1,6 @@
+#"source_ami_id"    = "Ubuntu Server 22.04 LTS (HVM)(20231004)"
+region        = "ap-northeast-2"
+source_ami_id = "ami-0c9c942bd7bf113a2"
+instance_type = "t3.micro"
+ami_name      = "Ubuntu-Server-2204-K8S"
+ssh_username  = "ubuntu"
